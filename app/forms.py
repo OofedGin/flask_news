@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, SelectField
-from wtforms.validators import Length, DataRequired, Optional
+from wtforms import StringField, TextAreaField, SelectField, SubmitField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Length, Optional, Email, EqualTo
 
 from .models import Category
 
@@ -11,12 +11,31 @@ def get_categories():
 
 
 class NewsForm(FlaskForm):
-    title = StringField('Название',
-                        validators=[DataRequired(message='Это поле не должно быть пустым!'),
-                                    Length(max=255, message='Заголовок не более 255 символов!')])
-    text = TextAreaField('Текст новости',
-                         validators=[DataRequired(message='Это поле не должно быть пустым!'),
-                                     Length(min=10)])
+    title = StringField('Название', validators=[DataRequired(message="Поле не должно быть пустым"),
+                                                Length(max=255, message='Введите заголовок длиной до 255 символов')])
+    text = TextAreaField('Текст', validators=[DataRequired(message="Поле не должно быть пустым")])
+    category = SelectField('Категория', choices=get_categories, validators=[Optional()])
+    submit = SubmitField('Добавить')
 
-    category = SelectField('Категория', choices=get_categories(), validators=[Optional()])
-    submit = SubmitField('Подтвердить')
+
+class CategoryForm(FlaskForm):
+    title = StringField('Название', validators=[DataRequired(message="Поле не должно быть пустым"),
+                                                Length(max=255, message='Введите заголовок длиной до 255 символов')])
+    submit = SubmitField('Добавить')
+
+
+class LoginForm(FlaskForm):
+    username = StringField("Имя пользователя", validators=[DataRequired()])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    remember = BooleanField("Запомнить меня")
+    submit = SubmitField('Войти')
+
+
+class RegistrationForm(FlaskForm):
+    username = StringField("Имя пользователя", validators=[DataRequired()])
+    name = StringField("Имя", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email(message='Некорректный email')])
+    password = PasswordField("Пароль", validators=[DataRequired()])
+    password2 = PasswordField("Повторите пароль",
+                              validators=[DataRequired(), EqualTo('password', message='Пароли не совпадают')])
+    submit = SubmitField('Зарегистрироваться')
